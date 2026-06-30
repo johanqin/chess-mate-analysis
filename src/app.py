@@ -13,7 +13,7 @@ with open("src/static/mate_data.json") as f:
 
 @app.route("/api/openings")
 def list_openings():
-    return jsonify(list(MATE_DATA.keys()))
+    return jsonify(sorted(MATE_DATA.keys()))
 
 @app.route("/api/mate-squares/<opening>")
 def mate_squares(opening):

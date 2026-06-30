@@ -6,6 +6,7 @@ from collections import defaultdict
 def clean_name(opening):
     opening = re.sub(r'\s*#\d+$', '', opening)
     opening = opening.split(':')[0].strip()
+    opening = opening.split(',')[0].strip()
     return opening
 
 def export_all_openings(min_games=500):

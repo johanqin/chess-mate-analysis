@@ -60,3 +60,20 @@ def get_opening_summary(opening):
     rows = cursor.fetchall()
     conn.close()
     return rows
+
+
+def get_mating_pieces_by_rating(opening, min_elo, max_elo):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT mating_piece, COUNT(*) as total
+        FROM games
+        WHERE opening = ?
+          AND white_elo BETWEEN ? AND ?
+          AND black_elo BETWEEN ? AND ?
+        GROUP BY mating_piece
+        ORDER BY total DESC
+    """, (opening, min_elo, max_elo, min_elo, max_elo))
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
