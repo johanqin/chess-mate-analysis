@@ -30,6 +30,7 @@ function drawBoard(boardId, squareCounts, flipped = false) {
     board.innerHTML = "";
 
     const maxCount = Math.max(...Object.values(squareCounts), 1);
+    const totalCount = Object.values(squareCounts).reduce((a, b) => a + b, 0);
     const files = "abcdefgh";
 
     const ranks = flipped ? [1, 2, 3, 4, 5, 6, 7, 8] : [8, 7, 6, 5, 4, 3, 2, 1];
@@ -43,22 +44,28 @@ function drawBoard(boardId, squareCounts, flipped = false) {
 
             const square = document.createElement("div");
             square.className = "square";
-            square.textContent = count > 0 ? count : "";
-
+            const pct = count / totalCount * 100;
+            const showColor = pct >= 2;
             const isLight = (rank + file) % 2 === 0;
-            const baseColor = isLight ? [240, 217, 181] : [181, 136, 99];
 
-            if (count > 0) {
-                const r = Math.round(baseColor[0] + (220 - baseColor[0]) * intensity);
-                const g = Math.round(baseColor[1] * (1 - intensity * 0.8));
-                const b = Math.round(baseColor[2] * (1 - intensity * 0.8));
+            if (showColor) {
+                let r, g, b;
+                if (intensity > 0.6) {
+                    r = 220; g = 20; b = 0;
+                } else if (intensity > 0.3) {
+                    r = 235; g = 120; b = 0;
+                } else {
+                    r = 245; g = 200; b = 0;
+                }
                 square.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
                 square.style.color = intensity > 0.4 ? "white" : "black";
+                square.textContent = Math.round(pct) + "%";
             } else {
-                square.style.backgroundColor = `rgb(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]})`;
+                square.style.backgroundColor = isLight ? "rgb(240, 217, 181)" : "rgb(181, 136, 99)";
+                square.textContent = "";
                 square.style.color = "black";
             }
-
+            
             board.appendChild(square);
         }
     }
