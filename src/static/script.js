@@ -106,6 +106,10 @@ function drawLabels(rankLabelsId, fileLabelsId, flipped = false) {
 }
 
 
+document.getElementById("openingSelect").addEventListener("change", (e) => {
+    loadHeatmap(e.target.value);
+});
+
 document.getElementById("ratingSelect").addEventListener("change", () => {
     const opening = document.getElementById("openingSelect").value;
     loadHeatmap(opening);
