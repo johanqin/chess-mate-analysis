@@ -3,10 +3,28 @@ import re
 from analyze import get_opening_stats, get_opening_summary
 from collections import defaultdict
 
+ALIASES = {
+    "Danish Gambit Accepted": "Danish Gambit",
+    "Englund Gambit": "Englund Gambit Complex",
+    "Englund Gambit Complex Declined": "Englund Gambit Complex",
+    "Englund Gambit Declined": "Englund Gambit Complex",
+    "Gedult's Opening": "Barnes Opening",
+    "King's Pawn Game": "King's Pawn",
+    "King's Pawn Opening": "King's Pawn",
+    "Latvian Gambit Accepted": "Latvian Gambit",
+    "Nimzowitsch-Larsen Attack": "Nimzo-Larsen Attack",
+    "Petrov's Defense": "Petrov",
+    "Queen's Gambit Refused": "Queen's Gambit Declined",
+    "Queen's Pawn Game": "Queen's Pawn",
+    "Robatsch (Modern) Defense": "Modern Defense",
+    "Robatsch Defense": "Modern Defense",
+}
+
 def clean_name(opening):
     opening = re.sub(r'\s*#\d+$', '', opening)
     opening = opening.split(':')[0].strip()
     opening = opening.split(',')[0].strip()
+    opening = ALIASES.get(opening, opening)
     return opening
 
 def export_all_openings(min_games=500):
