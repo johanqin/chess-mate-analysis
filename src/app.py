@@ -20,5 +20,5 @@ def mate_squares(opening):
     return jsonify(MATE_DATA.get(opening, {"white": {}, "black": {}}))
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 5001))
     app.run(host="0.0.0.0", port=port)
