@@ -15,7 +15,17 @@ async function loadOpenings() {
 
 
 async function loadHeatmap(opening) {
-    const response = await fetch(`/api/mate-squares/${opening}`);
+    const ratingValue = document.getElementById("ratingSelect").value;
+    const [minElo, maxElo] = ratingValue.split(",");
+    
+    let url;
+    if (ratingValue === "0,3000") {
+        url = `/api/mate-squares/${encodeURIComponent(opening)}`;
+    } else {
+        url = `/api/mate-squares/${encodeURIComponent(opening)}/${minElo}/${maxElo}`;
+    }
+    
+    const response = await fetch(url);
     const data = await response.json();
 
     drawBoard("whiteBoard", data.white, false);
@@ -65,7 +75,7 @@ function drawBoard(boardId, squareCounts, flipped = false) {
                 square.textContent = "";
                 square.style.color = "black";
             }
-            
+
             board.appendChild(square);
         }
     }
@@ -96,8 +106,9 @@ function drawLabels(rankLabelsId, fileLabelsId, flipped = false) {
 }
 
 
-document.getElementById("openingSelect").addEventListener("change", (e) => {
-    loadHeatmap(e.target.value);
+document.getElementById("ratingSelect").addEventListener("change", () => {
+    const opening = document.getElementById("openingSelect").value;
+    loadHeatmap(opening);
 });
 
 loadOpenings();
