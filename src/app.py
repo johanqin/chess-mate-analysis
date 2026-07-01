@@ -1,6 +1,4 @@
 from flask import Flask, jsonify, render_template
-from db import DB_PATH
-import sqlite3
 import json
 import os
 
@@ -19,28 +17,14 @@ def list_openings():
 
 @app.route("/api/mate-squares/<opening>")
 def mate_squares(opening):
-    return jsonify(MATE_DATA.get(opening, {"white": {}, "black": {}}))
+    opening_data = MATE_DATA.get(opening, {})
+    result = opening_data.get("all", {"white": {}, "black": {}})
+    return jsonify(result)
 
-@app.route("/api/mate-squares/<opening>/<int:min_elo>/<int:max_elo>")
-def mate_squares_by_rating(opening, min_elo, max_elo):
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT mated_side, mate_square, COUNT(*) as total
-        FROM games
-        WHERE opening = ?
-          AND white_elo BETWEEN ? AND ?
-          AND black_elo BETWEEN ? AND ?
-        GROUP BY mated_side, mate_square
-        ORDER BY mated_side, total DESC
-    """, (opening, min_elo, max_elo, min_elo, max_elo))
-    rows = cursor.fetchall()
-    conn.close()
-    
-    result = {"white": {}, "black": {}}
-    for mated_side, square, count in rows:
-        key = "white" if mated_side == "White" else "black"
-        result[key][square] = count
+@app.route("/api/mate-squares/<opening>/<band>")
+def mate_squares_by_band(opening, band):
+    opening_data = MATE_DATA.get(opening, {})
+    result = opening_data.get(band, {"white": {}, "black": {}})
     return jsonify(result)
 
 if __name__ == "__main__":

@@ -1,7 +1,9 @@
 import json
 import re
-from analyze import get_opening_stats, get_opening_summary
+import sqlite3
 from collections import defaultdict
+from analyze import get_opening_stats, get_opening_summary
+from db import DB_PATH
 
 ALIASES = {
     "Danish Gambit Accepted": "Danish Gambit",
@@ -20,6 +22,14 @@ ALIASES = {
     "Robatsch Defense": "Modern Defense",
 }
 
+RATING_BANDS = [
+    ("all", 0, 3000),
+    ("beginner", 800, 1200),
+    ("intermediate", 1200, 1600),
+    ("advanced", 1600, 2000),
+    ("expert", 2000, 2400),
+]
+
 def clean_name(opening):
     opening = re.sub(r'\s*#\d+$', '', opening)
     opening = opening.split(':')[0].strip()
@@ -27,28 +37,69 @@ def clean_name(opening):
     opening = ALIASES.get(opening, opening)
     return opening
 
+def get_opening_summary_by_rating(opening, min_elo, max_elo):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    if min_elo == 0 and max_elo == 3000:
+        cursor.execute("""
+            SELECT mated_side, mate_square, COUNT(*) as total
+            FROM games
+            WHERE opening = ?
+            GROUP BY mated_side, mate_square
+            ORDER BY mated_side, total DESC
+        """, (opening,))
+    else:
+        cursor.execute("""
+            SELECT mated_side, mate_square, COUNT(*) as total
+            FROM games
+            WHERE opening = ?
+              AND white_elo BETWEEN ? AND ?
+              AND black_elo BETWEEN ? AND ?
+            GROUP BY mated_side, mate_square
+            ORDER BY mated_side, total DESC
+        """, (opening, min_elo, max_elo, min_elo, max_elo))
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
+
 def export_all_openings(min_games=500):
     stats = get_opening_stats()
-    openings = [row[0] for row in stats if row[1] >= min_games]
+    
+    # Build cleaned opening map
+    opening_map = defaultdict(list)
+    for row in stats:
+        if row[1] >= min_games:
+            clean = clean_name(row[0])
+            opening_map[clean].append(row[0])
 
-    data = defaultdict(lambda: {"white": defaultdict(int), "black": defaultdict(int)})
-
-    for opening in openings:
-        clean = clean_name(opening)
-        rows = get_opening_summary(opening)
-        for mated_side, square, count in rows:
-            key = "white" if mated_side == "White" else "black"
-            data[clean][key][square] += count
-
-    final_data = {
-        opening: {"white": dict(sides["white"]), "black": dict(sides["black"])}
-        for opening, sides in data.items()
-    }
+    data = {}
+    
+    for clean_opening, raw_openings in opening_map.items():
+        data[clean_opening] = {}
+        
+        for band_name, min_elo, max_elo in RATING_BANDS:
+            white_counts = defaultdict(int)
+            black_counts = defaultdict(int)
+            
+            for raw_opening in raw_openings:
+                rows = get_opening_summary_by_rating(raw_opening, min_elo, max_elo)
+                for mated_side, square, count in rows:
+                    if mated_side == "White":
+                        white_counts[square] += count
+                    else:
+                        black_counts[square] += count
+            
+            data[clean_opening][band_name] = {
+                "white": dict(white_counts),
+                "black": dict(black_counts)
+            }
+        
+        print(f"Exported: {clean_opening}")
 
     with open("src/static/mate_data.json", "w") as f:
-        json.dump(final_data, f)
+        json.dump(data, f)
 
-    print(f"Exported {len(final_data)} cleaned openings to mate_data.json")
+    print(f"\nDone! Exported {len(data)} openings with {len(RATING_BANDS)} rating bands each.")
 
 if __name__ == "__main__":
     export_all_openings()
