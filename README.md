@@ -1,6 +1,9 @@
 # Chess Mate Square Analyzer
 
-A data pipeline that analyzes hundreds of thousands of chess games to find which squares players are most likely to get mated on, broken down by opening.
+## Live Post
+[I Built a Chess Checkmate Heatmap — Here's What 1.5 Million Games Revealed](https://lichess.org/@/TheMarginalEye/blog/i-built-a-chess-checkmate-heatmap-heres-what-15-million-games-revealed/BO7ljc6r)
+
+A full data pipeline analyzing 1.5 million Lichess checkmate games across 92 named openings to map where kings get mated — broken down by opening choice, rating level, and mating piece. Includes an interactive heatmap with rating filters.
 
 ## What it does
 - Parses PGN/ZST files from the Lichess open database
@@ -9,7 +12,12 @@ A data pipeline that analyzes hundreds of thousands of chess games to find which
 - Generates heatmap visualizations
 
 ## Key finding
-Regardless of opening, both sides are most frequently mated on the same 3 squares — the kingside castled position (g1/g8, h1/h8, f1/f8). The data suggests castle your king, but always maintain escape squares.
+- The castled square (g1/g8) is the most common mate square across every opening and skill level
+- 1.e4 produces 2.5x more checkmates than 1.d4, ending ~4-6 moves earlier
+- Queens deliver ~65% of all checkmates regardless of opening family
+- In 1.d4, White's queen delivers mate 41.5% of the time at beginner level vs Black's 25% — a gap that nearly vanishes at expert level (33.5% vs 33.2%)
+- The Italian Game shows a unique pattern: beginners get mated on e8 twice as often as g8, reversing at advanced levels as castling becomes more reliable
+- Opening choice predicts your danger zone. Knowing your opening's heatmap is preparation most players never do.
 
 ## Setup
 ```bash
