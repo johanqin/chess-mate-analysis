@@ -27,6 +27,13 @@ def mate_squares_by_band(opening, band):
     result = opening_data.get(band, {"white": {}, "black": {}})
     return jsonify(result)
 
+@app.route("/api/mate-squares/<opening>/<band>/<speed>")
+def mate_squares_by_band_and_speed(opening, band, speed):
+    opening_data = MATE_DATA.get(opening, {})
+    speed_data = opening_data.get(speed, {})
+    result = speed_data.get(band, {"white": {}, "black": {}})
+    return jsonify(result)
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5001))
     app.run(host="0.0.0.0", port=port)

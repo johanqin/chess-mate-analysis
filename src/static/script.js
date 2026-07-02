@@ -16,22 +16,18 @@ async function loadOpenings() {
 
 async function loadHeatmap(opening) {
     const ratingValue = document.getElementById("ratingSelect").value;
-    
-    let url;
-    if (ratingValue === "all") {
-        url = `/api/mate-squares/${encodeURIComponent(opening)}`;
-    } else {
-        url = `/api/mate-squares/${encodeURIComponent(opening)}/${ratingValue}`;
-    }
-    
+    const speedValue = document.getElementById("speedSelect").value;
+
+    const url = `/api/mate-squares/${encodeURIComponent(opening)}/${ratingValue}/${speedValue}`;
+
     const response = await fetch(url);
     const data = await response.json();
 
     const hasData = Object.keys(data.white).length > 0 || Object.keys(data.black).length > 0;
-    
+
     if (!hasData) {
-        document.getElementById("whiteBoard").innerHTML = "<div style='color:#aaa; font-size:13px; padding:20px; grid-column: span 8;'>Not enough data for this rating band</div>";
-        document.getElementById("blackBoard").innerHTML = "<div style='color:#aaa; font-size:13px; padding:20px; grid-column: span 8;'>Not enough data for this rating band</div>";
+        document.getElementById("whiteBoard").innerHTML = "<div style='color:#aaa; font-size:13px; padding:20px; grid-column: span 8;'>Not enough data for this combination</div>";
+        document.getElementById("blackBoard").innerHTML = "<div style='color:#aaa; font-size:13px; padding:20px; grid-column: span 8;'>Not enough data for this combination</div>";
         return;
     }
 
@@ -118,6 +114,11 @@ document.getElementById("openingSelect").addEventListener("change", (e) => {
 });
 
 document.getElementById("ratingSelect").addEventListener("change", () => {
+    const opening = document.getElementById("openingSelect").value;
+    loadHeatmap(opening);
+});
+
+document.getElementById("speedSelect").addEventListener("change", () => {
     const opening = document.getElementById("openingSelect").value;
     loadHeatmap(opening);
 });

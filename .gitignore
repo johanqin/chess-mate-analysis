@@ -5,3 +5,4 @@ __pycache__/
 *.pyc
 .DS_Store
 mate_heatmap.png
+count_thin_cells.py
