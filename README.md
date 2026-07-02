@@ -3,7 +3,7 @@
 ## Live Post
 [I Built a Chess Checkmate Heatmap — Here's What 1.5 Million Games Revealed](https://lichess.org/@/TheMarginalEye/blog/i-built-a-chess-checkmate-heatmap-heres-what-15-million-games-revealed/BO7ljc6r)
 
-A full data pipeline analyzing 1.5 million Lichess checkmate games across 92 named openings to map where kings get mated — broken down by opening choice, rating level, time control, and mating piece. Includes an interactive heatmap with rating and time control filters, plus a personal lookup that analyzes your own Lichess checkmate history.
+A full data pipeline analyzing 1.5 million Lichess checkmate games across 92 named openings to map where kings get mated — broken down by opening choice, rating level, and time control. The database also tracks mating piece, used in the blog post's analysis of which piece delivers the final blow. Includes an interactive heatmap with rating and time control filters, plus a personal lookup that analyzes your own Lichess checkmate history.
 
 ## What it does
 - Parses PGN/ZST files from the Lichess open database
