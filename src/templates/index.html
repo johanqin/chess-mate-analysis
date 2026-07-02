@@ -123,6 +123,39 @@
 <p style="text-align: center; font-size: 12px; color: #666; margin-top: 12px;">
     Percentages show share of checkmates for each color in a specific opening. Squares below 2% are hidden for clarity.
 </p>
+<div style="margin-top: 60px; padding-top: 40px; border-top: 1px solid #333;">
+    <h2>Where Do YOU Get Checkmated?</h2>
+    <p class="subtitle">Enter your Lichess username to see your own checkmate history</p>
+
+    <input type="text" id="lichessUsername" placeholder="Lichess username" style="font-size: 16px; padding: 8px; margin: 10px;">
+    <button id="lookupBtn" style="font-size: 16px; padding: 8px 16px; margin: 10px; cursor: pointer;">Analyze My Games</button>
+
+    <p id="personalStatus" style="color: #aaa; font-size: 14px;"></p>
+
+    <div class="boards" id="personalBoardsContainer" style="display: none;">
+        <div class="board-wrapper">
+            <h3>Where You Get Checkmated (as White)</h3>
+            <div class="board-with-labels">
+                <div class="board-row">
+                    <div class="rank-labels" id="personalWhiteRankLabels"></div>
+                    <div class="board" id="personalWhiteBoard"></div>
+                </div>
+                <div class="file-labels" id="personalWhiteFileLabels"></div>
+            </div>
+        </div>
+        <div class="board-wrapper">
+            <h3>Where You Get Checkmated (as Black)</h3>
+            <div class="board-with-labels">
+                <div class="board-row">
+                    <div class="rank-labels" id="personalBlackRankLabels"></div>
+                    <div class="board" id="personalBlackBoard"></div>
+                </div>
+                <div class="file-labels" id="personalBlackFileLabels"></div>
+            </div>
+        </div>
+    </div>
+    <p style="text-align: center; font-size: 12px; color: #666; margin-top: 12px;" id="personalCaption"></p>
+</div>
     <script src="/static/script.js?v=4"></script>
     <div style="text-align: center; color: #666; font-size: 12px; padding: 20px; margin-top: 20px;">
         Built by <a href="https://lichess.org/@/TheMarginalEye" target="_blank" style="color: #888; text-decoration: none;">Johan Qin</a> · 

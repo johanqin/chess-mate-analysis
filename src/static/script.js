@@ -38,7 +38,7 @@ async function loadHeatmap(opening) {
 }
 
 
-function drawBoard(boardId, squareCounts, flipped = false) {
+function drawBoard(boardId, squareCounts, flipped = false, rawCounts = false) {
     const board = document.getElementById(boardId);
     board.innerHTML = "";
 
@@ -57,8 +57,10 @@ function drawBoard(boardId, squareCounts, flipped = false) {
 
             const square = document.createElement("div");
             square.className = "square";
-            const pct = count / totalCount * 100;
-            const showColor = pct >= 2;
+            const pct = totalCount > 0 ? (count / totalCount * 100) : 0;
+            // In raw-counts mode, show every square with at least 1 game --
+            // percentage-based hiding doesn't make sense on tiny sample sizes.
+            const showColor = rawCounts ? count > 0 : pct >= 2;
             const isLight = (rank + file) % 2 === 0;
 
             if (showColor) {
@@ -72,7 +74,7 @@ function drawBoard(boardId, squareCounts, flipped = false) {
                 }
                 square.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
                 square.style.color = intensity > 0.4 ? "white" : "black";
-                square.textContent = Math.round(pct) + "%";
+                square.textContent = rawCounts ? count : Math.round(pct) + "%";
             } else {
                 square.style.backgroundColor = isLight ? "rgb(240, 217, 181)" : "rgb(181, 136, 99)";
                 square.textContent = "";
@@ -109,6 +111,57 @@ function drawLabels(rankLabelsId, fileLabelsId, flipped = false) {
 }
 
 
+async function loadPersonalAnalysis() {
+    const username = document.getElementById("lichessUsername").value.trim();
+    const statusEl = document.getElementById("personalStatus");
+    const containerEl = document.getElementById("personalBoardsContainer");
+    const captionEl = document.getElementById("personalCaption");
+
+    if (!username) {
+        statusEl.textContent = "Please enter a username.";
+        containerEl.style.display = "none";
+        return;
+    }
+
+    statusEl.textContent = "Fetching your games from Lichess... this may take a moment.";
+    containerEl.style.display = "none";
+    captionEl.textContent = "";
+
+    let response;
+    try {
+        response = await fetch(`/api/personal-analysis/${encodeURIComponent(username)}`);
+    } catch (err) {
+        statusEl.textContent = "Something went wrong reaching the server. Try again.";
+        return;
+    }
+
+    if (!response.ok) {
+        if (response.status === 404) {
+            statusEl.textContent = `Couldn't find a Lichess user named "${username}".`;
+        } else {
+            statusEl.textContent = "Lichess API is having issues right now. Try again in a moment.";
+        }
+        return;
+    }
+
+    const data = await response.json();
+
+    if (data.total_games === 0) {
+        statusEl.textContent = `No checkmate losses found for "${username}" in their recent games. Lucky you!`;
+        return;
+    }
+
+    statusEl.textContent = "";
+    containerEl.style.display = "flex";
+    captionEl.textContent = `${data.total_games} checkmate loss${data.total_games === 1 ? "" : "es"} found in your last ${data.total_games_checked} games. Numbers show raw counts, not percentages.`;    
+    
+    drawBoard("personalWhiteBoard", data.white, false, true);
+    drawBoard("personalBlackBoard", data.black, true, true);
+    drawLabels("personalWhiteRankLabels", "personalWhiteFileLabels", false);
+    drawLabels("personalBlackRankLabels", "personalBlackFileLabels", true);
+}
+
+
 document.getElementById("openingSelect").addEventListener("change", (e) => {
     loadHeatmap(e.target.value);
 });
@@ -122,5 +175,7 @@ document.getElementById("speedSelect").addEventListener("change", () => {
     const opening = document.getElementById("openingSelect").value;
     loadHeatmap(opening);
 });
+
+document.getElementById("lookupBtn").addEventListener("click", loadPersonalAnalysis);
 
 loadOpenings();
